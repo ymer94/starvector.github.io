@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="StarVector">
+  <meta name="keywords" content="SVG Generation and Vectorization">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarVector</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/954/954591.png">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+  <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.16.0/gradio.js"></script>
+</head>
+
+<style>
+  .expandable-card .card-text-container {
+    max-height: 200px;
+    overflow-y: hidden;
+    position: relative;
+  }
+
+  .expandable-card.expanded .card-text-container {
+    max-height: none;
+  }
+
+  .expand-btn {
+    position: relative;
+    display: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* margin-top: -20px; */
+    /* justify-content: center; */
+    color: #510c75;
+    border-color: transparent;
+  }
+
+  .expand-btn:hover {
+    background-color: rgba(200, 200, 200, 0.8);
+    text-decoration: none;
+    border-color: transparent;
+    color: #510c75;
+  }
+
+  .expand-btn:focus {
+    outline: none;
+    text-decoration: none;
+  }
+
+  .expandable-card:not(.expanded) .card-text-container:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 1));
+  }
+
+  .expandable-card:not(.expanded) .expand-btn {
+    margin-top: -40px;
+  }
+
+  .card-body {
+    padding-bottom: 5px;
+  }
+
+  .vertical-flex-layout {
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .figure-img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .adjustable-font-size {
+    font-size: calc(0.5rem + 2vw);
+  }
+
+  .chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    /* overflow-x: hidden; */
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+
+  #gradio pre {
+    background-color: transparent;
+  }
+</style>
+
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">StarVector: <span class="is-size-2"><span class="is-size-1">G</span>enerating <span class="is-size-1">S</span>calable <span class="is-size-1">V</span>ector <span class="is-size-1">G</span>raphics <span class="is-size-1">C</span>ode <span class="is-size-1">F</span>rom <span class="is-size-1">I</span>mages <span class="is-size-1">A</span>nd <span class="is-size-1">T</span>ext</span></h1>
+            <div class="is-size-5 publication-authors">
+              <div class="is-size-5 publication-authors">
+                <span class="author-block">
+                  <a href="#" style="color:#f68946;font-weight:normal;">Juan Rodriguez<sup> 1,2,4 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#F2A900;font-weight:normal;">Abhay Puri<sup> 1 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#f68946;font-weight:normal;">Shubham Agarwal<sup> 1,2 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#F2A900;font-weight:normal;">Issam H. Laradji<sup> 1,5 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#008AD7;font-weight:normal;">Sai Rajeswar<sup> 1,2 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#f68946;font-weight:normal;">Pau Rodriguez<sup> 6* </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#008AD7;font-weight:normal;">David Vazquez<sup> 1 </sup></a>,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#f68946;font-weight:normal;">Christopher Pal<sup> 1,2,3 </sup></a> ,
+                </span>
+                <span class="author-block">
+                  <a href="#" style="color:#008AD7;font-weight:normal;">Marco Pedersoli<sup> 4 </sup></a> 
+                </span>
+              </div>
+              
+              <div class="is-size-5 publication-authors">
+                <span class="author-block"><b style="color:#f68946; font-weight:normal">&#x25B6 </b>ServiceNow Research <sup> 1 </sup></span>
+                <span class="author-block"><b style="color:#0a5178; font-weight:normal">&#x25B6 </b>Mila - Quebec AI Institute <sup> 2 </sup></span>
+                <span class="author-block"><b style="color:#F2A900; font-weight:normal">&#x25B6 </b>Canada CIFAR AI Chair <sup> 3 </sup></span>
+                <span class="author-block"><b style="color:#35625d; font-weight:normal">&#x25B6 </b>ETS, Montreal, Canada <sup> 4 </sup></span>
+                <span class="author-block"><b style="color:#008AD7; font-weight:normal">&#x25B6 </b>UBC, Vancouver, Canada <sup> 5 </sup></span>
+                <span class="author-block"><b style="color:#55181c; font-weight:normal">&#x25B6 </b>Apple MLR <sup> 6 </sup></span>
+              </div>
+                <div class="column has-text-centered">
+                    <div class="publication-links">
+                <span class="link-block">
+                    <a href="" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fab fa-github"></i>
+                      </span>
+                      <span>Code</span>
+                    </a>
+                  </span>
+                  <span class="link-block">
+                    <a href="" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-database"></i>
+                      </span>
+                      <span>Dataset</span>
+                    </a>
+                  </span>
+            </div>
+            <!-- <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="" style="color:#f68946;font-weight:normal;"><sup>*</sup></a>,
+              </span>
+              <span class="author-block">
+                <a href="" style="color:#008AD7;font-weight:normal;"><sup>*</sup></a>,
+              </span>
+              <span class="author-block">
+                <a href="" style="color:#F2A900;font-weight:normal;"></a>,
+              </span>
+              <span class="author-block">
+                <a href="" style="color:#f68946;font-weight:normal;"></a>
+              </span>
+            </div> -->
+
+            <!-- <div class="is-size-5 publication-authors">
+              <span class="author-block"><b style="color:#f68946; font-weight:normal">&#x25B6 </b> </b></span>
+              <span class="author-block"><b style="color:#008AD7; font-weight:normal">&#x25B6 </b> </span>
+              <span class="author-block"><b style="color:#F2A900; font-weight:normal">&#x25B6 </b></span>
+            </div> -->
+
+            <!-- <div class="is-size-6 publication-authors">
+              <span class="author-block"><sup>*</sup>Equal Contribution</span>
+            </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="background-color:#efeff081">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3" style="text-align: center;">Abstract</h2>
+      <!-- Image -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-six-fifths">
+          <figure>
+            <img src="static/images/starvector_teaser.png" alt="Teaser Image">
+            <figcaption> <b>Figure 1:</b> StarVector is a foundation model for SVG generation. It uses a Vision-Language Modeling architecture 
+              to understand images and text instructions. StarVector excels at vectorizing a wide range of visual
+              inputs, from general icons and logotypes to more intricate vectors such as technical diagrams.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <!-- Abstract -->
+      <div class="columns is-centered has-text-centered">
+        <div class="columns is-centered has-text-centered">
+            <div class="column is-six-fifths">
+              <div class="content has-text-justified">
+                <p>
+                  StarVector is a pioneering Foundation Model for Scalable Vector Graphics (SVG) generation that integrates both visual and textual inputs. Designed to address the limitations of traditional image processing algorithms, StarVector excels in complex tasks such as image vectorization and text-conditional SVG generation. It introduces a vision-language modeling approach within a transformer decoder architecture, offering a significant leap in generating sophisticated SVG elements. Accompanied by the introduction of SVG-Stack, a large-scale dataset, and SVG-Bench, a new benchmark for SVG generation, StarVector sets a new performance standard in this field.
+                </p>
+                <ol type="1">
+                  <li><b>Innovative SVG Generation:</b> <span style="font-size: 95%;"> StarVector leverages a transformer decoder architecture to generate SVG code from both images and textual descriptions, enabling advanced image vectorization and text-conditional SVG creation.</span></li>
+                  <li><b>Complex Task Proficiency:</b> <span style="font-size: 95%;">Unlike traditional algorithms, StarVector handles intricate SVG elements such as text and detailed primitives, making it suitable for generating sophisticated diagrams and visuals.</span></li>
+                  <li><b>Comprehensive Dataset and Benchmark:</b> <span style="font-size: 95%;">SVG-Stack, a dataset with over 2 million SVG samples, and SVG-Bench, a dedicated benchmark, provide the foundation for training and evaluating StarVector's capabilities.</span></li>
+                  <li><b>State-of-the-Art Performance:</b> <span style="font-size: 95%;">StarVector surpasses previous methods in both text-to-SVG and image-to-SVG generation, closing the gap with traditional image processing techniques while being fully open-sourced for the research community.</span></li>
+                  </ol> 
+                  The repository can be accessed here:<a href="https://github.com/starvector">https://github.com/starvector </a></p>
+                 
+              </div>
+            </div>
+          </div>
+  </section>
+
+  <section class="section">
+    <!-- Results. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-six-fifths">
+        <h2 class="title is-3">StarVector</h2>
+      </div>
+    </div>
+    <!-- </div> -->
+  <div class="container is-max-desktop">
+  
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <div class="content has-text-justified"> 
+            <figure>
+                <img src="static/images/starvector_arch.png" alt="Teaser Image">
+                <figcaption> <b>Figure 2: a) StarVector Architecture: </b> StarVector projects images into embeddings via an image encoder,
+                  then maps these embeddings to the LLM hidden space using an LLM Adapter, generating Visual Tokens.
+                  Text conditioning is achieved with the LLM’s tokenizer and embedder. The model learns to map token
+                  sequences (visual or textual) to SVG code. The symbol ⊕ denotes mutually exclusive operations (image-to-
+                  SVG or text-to-SVG), while ‖ indicates sequence concatenation. <b>Figure 2: b)Vision Model and Adapter: </b> The
+                  image encoder employs a Vision Transformer (ViT) to process image patches sequentially. The LLM Adapter
+                  non-linearly projects embeddings into visual tokens for LLM integration.</figcaption>
+              </figure>
+            </div>
+          </div> 
+    </section>
+    <section class="section">
+        <div class="container">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-three-quarters">
+              <div class="content has-text-justified">
+                <p>** Write Something here **</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      
+  
+<section class="hero teaser">
+<div class="container is-max-desktop">
+    <div class="hero-body">
+    <h4 class="subtitle has-text-centered">
+        &#x1F51C;<span style="color: #ff3860">[Coming Soon!]</span> More details about dataset creation, experimental setup, and evaluation!
+    </h4>
+    </div>
+</div>
+</section>
+      
+
+</body>
+
+</html>
