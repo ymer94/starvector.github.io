@@ -22,12 +22,6 @@ function updateImagePosition() {
   modalImg.style.transform = `translate(${posX}px, ${posY}px) scale(${currentZoom})`;
 }
 
-// Reset zoom and position
-function resetZoomAndPosition() {
-  currentZoom = 1, posX = posY = 0;
-  updateImagePosition();
-}
-
 // Default zoom action function.
 function zoom(direction, step = .25) {
     const MIN = .5, MAX = MIN * 10;
@@ -63,6 +57,37 @@ function zoomOut(step = .25) {
     }
 }
 
+// Reset zoom and position
+function resetZoomAndPosition() {
+  currentZoom = 1, posX = posY = 0;
+  updateImagePosition();
+}
+
+// Pan functions
+function panningStart(pointer) {
+    if (!currentZoom > 1) return; // Only allow panning when zoomed in
+  
+    modalImg.classList.add('panning');
+
+    isPanning = true;
+    startPosX = pointer.clientX - posX;
+    startPosY = pointer.clientY - posY;
+}
+
+function panningMove(pointer) {
+    if (!isPanning) return;
+  
+    posX = pointer.clientX - startPosX;
+    posY = pointer.clientY - startPosY;
+
+    updateImagePosition();
+}
+
+function panninStop() {
+    isPanning = false;
+    modalImg.classList.remove('panning');
+}
+
 // Add click event to all images
 images.forEach(img => {
   img.addEventListener('click', function() {
@@ -93,7 +118,7 @@ zoomOutBtn.addEventListener('click', () => { zoomOut(); updateImagePosition() })
 zoomResetBtn.addEventListener('click', resetZoomAndPosition);
 
 // Mouse wheel zoom
-imageWrapper.addEventListener('wheel', function(e) {
+imageWrapper.addEventListener('wheel', (e) => {
     e.preventDefault();
     
     // Get mouse position relative to the image center
@@ -123,54 +148,21 @@ imageWrapper.addEventListener('wheel', function(e) {
 });
 
 // Pan image with mouse drag
-modalImg.addEventListener('mousedown', function(e) {
-  if (currentZoom <= 1) return; // Only allow panning when zoomed in
-  
-  e.preventDefault();
-  isPanning = true;
-  modalImg.classList.add('panning');
-  startPosX = e.clientX - posX;
-  startPosY = e.clientY - posY;
-});
+modalImg.addEventListener('mousedown', (e) => { e.preventDefault(); panningStart(e) });
 
-document.addEventListener('mousemove', function(e) {
-  if (!isPanning) return;
-  
-  posX = e.clientX - startPosX;
-  posY = e.clientY - startPosY;
-  updateImagePosition();
-});
+document.addEventListener('mousemove', (e) => { panningMove(e) });
 
-document.addEventListener('mouseup', function() {
-  isPanning = false;
-  modalImg.classList.remove('panning');
-});
+document.addEventListener('mouseup', panninStop);
 
 // Touch support for mobile devices
-modalImg.addEventListener('touchstart', function(e) {
-  if (currentZoom <= 1) return;
-  
-  isPanning = true;
-  modalImg.classList.add('panning');
-  startPosX = e.touches[0].clientX - posX;
-  startPosY = e.touches[0].clientY - posY;
-});
+modalImg.addEventListener('touchstart', (e) => { panningStart(e.touches[0]) });
 
-document.addEventListener('touchmove', function(e) {
-  if (!isPanning) return;
-  
-  posX = e.touches[0].clientX - startPosX;
-  posY = e.touches[0].clientY - startPosY;
-  updateImagePosition();
-});
+document.addEventListener('touchmove', (e) => { panningMove(e.touches[0]) });
 
-document.addEventListener('touchend', function() {
-  isPanning = false;
-  modalImg.classList.remove('panning');
-});
+document.addEventListener('touchend', panninStop);
 
 // Close modal when clicking the × button
-closeBtn.addEventListener('click', function() {
+closeBtn.addEventListener('click', () => {
   modal.classList.remove('show');
   setTimeout(() => modal.style.display = 'none', 300);
 });
