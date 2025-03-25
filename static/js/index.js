@@ -50,11 +50,13 @@ images.forEach(img => {
   });
 });
 
+function zoomIn(step = .25) {
+    currentZoom < 5 ? currentZoom += step : null; // Max zoom = 5, step = .25
+    updateImagePosition();
+}
+
 // Zoom in function
-zoomInBtn.addEventListener('click', () => {
-  currentZoom < 5 ? currentZoom += 0.25 : null; // Max zoom = 5, step = .25
-  updateImagePosition();
-});
+zoomInBtn.addEventListener('click', zoomIn);
 
 // Zoom out function
 zoomOutBtn.addEventListener('click', () => {
@@ -78,20 +80,16 @@ imageWrapper.addEventListener('wheel', function(e) {
   e.preventDefault();
   
   // Get mouse position relative to the image center
-  const rect = modalImg.getBoundingClientRect();
-  const mouseX = e.clientX - (rect.left + rect.width/2);
-  const mouseY = e.clientY - (rect.top + rect.height/2);
-  
-  // Calculate zoom
-  const oldZoom = currentZoom;
+  const rect = modalImg.getBoundingClientRect(), mouseX = e.clientX - (rect.left + rect.width/2), mouseY = e.clientY - (rect.top + rect.height/2),
+    oldZoom = currentZoom, factor = 1.1;
   
   if (e.deltaY < 0) {
     // Zoom in
-    currentZoom *= 1.1;
-    if (currentZoom > 5) currentZoom = 5;
+    currentZoom *= factor;
+    zoomIn(currentZoom - oldZoom);
   } else {
     // Zoom out
-    currentZoom /= 1.1;
+    currentZoom /= factor;
     if (currentZoom < 0.5) currentZoom = 0.5;
     
     // Gradually move toward center when zooming out
