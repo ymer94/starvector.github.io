@@ -52,27 +52,21 @@ images.forEach(img => {
 
 // Zoom in function
 zoomInBtn.addEventListener('click', () => {
-  currentZoom < 5 ? currentZoom += 0.25 : null; // Max zoom
+  currentZoom < 5 ? currentZoom += 0.25 : null; // Max zoom = 5, step = .25
   updateImagePosition();
 });
 
 // Zoom out function
 zoomOutBtn.addEventListener('click', () => {
-  currentZoom -= 0.25;
-  if (currentZoom < 0.5) currentZoom = 0.5; // Min zoom
+  currentZoom > 0.5 ? currentZoom -= 0.25 : null; // Min zoom = .5, step = .25
   
   // Gradually move toward center when zooming out
   if (currentZoom <= 1.5) {
-    const centeringFactor = (1.5 - currentZoom) / 0.5; // 0 at zoom 1.5, 1 at zoom 1.0
-    posX = posX * (1 - centeringFactor);
-    posY = posY * (1 - centeringFactor);
-  }
-  
-  if (currentZoom <= 1) {
-    posX = 0;
-    posY = 0;
-  }
-  
+    const centeringFactor = Math.round(1 - ((1.5 - currentZoom) / 0.5));
+
+    currentZoom <= 1 ? posX = posY = 0 : posX *= centeringFactor, posY *= centeringFactor;
+ }
+
   updateImagePosition();
 });
 
