@@ -24,10 +24,43 @@ function updateImagePosition() {
 
 // Reset zoom and position
 function resetZoomAndPosition() {
-  currentZoom = 1;
-  posX = 0;
-  posY = 0;
+  currentZoom = 1, posX = posY = 0;
   updateImagePosition();
+}
+
+// Default zoom action function.
+function zoom(direction, step = .25) {
+    const MIN = .5, MAX = MIN * 10;
+
+    step = Math.abs(step);
+
+    switch (direction) {
+        case 'in':
+            currentZoom < MAX ? currentZoom += step : currentZoom = MAX;
+            return;
+        case 'out':
+            currentZoom > MIN ? currentZoom -= step : currentZoom = MIN;
+            return;
+        default:
+            return;
+    }
+}
+
+// Zoom in function
+function zoomIn(step = .25) {
+    zoom('in', step);
+}
+
+// Zoom out function
+function zoomOut(step = .25) {
+    zoom('out', step);
+  
+    // Gradually move toward center when zooming out
+    if (currentZoom <= 1.5) {
+        const centeringFactor = Math.round(1 - ((1.5 - currentZoom) / 0.5));
+
+        currentZoom <= 1 ? posX = posY = 0 : posX *= centeringFactor, posY *= centeringFactor;
+    }
 }
 
 // Add click event to all images
@@ -50,72 +83,43 @@ images.forEach(img => {
   });
 });
 
-function zoomIn(step = .25) {
-    currentZoom < 5 ? currentZoom += step : null; // Max zoom = 5, step = .25
-    updateImagePosition();
-}
-
 // Zoom in function
-zoomInBtn.addEventListener('click', zoomIn);
+zoomInBtn.addEventListener('click', () => { zoomIn(); updateImagePosition() });
 
 // Zoom out function
-zoomOutBtn.addEventListener('click', () => {
-  currentZoom > 0.5 ? currentZoom -= 0.25 : null; // Min zoom = .5, step = .25
-  
-  // Gradually move toward center when zooming out
-  if (currentZoom <= 1.5) {
-    const centeringFactor = Math.round(1 - ((1.5 - currentZoom) / 0.5));
-
-    currentZoom <= 1 ? posX = posY = 0 : posX *= centeringFactor, posY *= centeringFactor;
- }
-
-  updateImagePosition();
-});
+zoomOutBtn.addEventListener('click', () => { zoomOut(); updateImagePosition() });
 
 // Reset zoom
 zoomResetBtn.addEventListener('click', resetZoomAndPosition);
 
 // Mouse wheel zoom
 imageWrapper.addEventListener('wheel', function(e) {
-  e.preventDefault();
-  
-  // Get mouse position relative to the image center
-  const rect = modalImg.getBoundingClientRect(), mouseX = e.clientX - (rect.left + rect.width/2), mouseY = e.clientY - (rect.top + rect.height/2),
-    oldZoom = currentZoom, factor = 1.1;
-  
-  if (e.deltaY < 0) {
-    // Zoom in
-    currentZoom *= factor;
-    zoomIn(currentZoom - oldZoom);
-  } else {
-    // Zoom out
-    currentZoom /= factor;
-    if (currentZoom < 0.5) currentZoom = 0.5;
+    e.preventDefault();
     
-    // Gradually move toward center when zooming out
-    if (currentZoom <= 1.5) {
-      const centeringFactor = (1.5 - currentZoom) / 0.5; // 0 at zoom 1.5, 1 at zoom 1.0
-      if (centeringFactor > 0) {
-        posX = posX * (1 - centeringFactor * 0.2); // Gradual centering
-        posY = posY * (1 - centeringFactor * 0.2);
-      }
-    }
+    // Get mouse position relative to the image center
+    const rect = modalImg.getBoundingClientRect(), mouseX = e.clientX - (rect.left + rect.width/2), mouseY = e.clientY - (rect.top + rect.height/2),
+        oldZoom = currentZoom, factor = 1.1;
     
-    // Force center when at or below normal zoom
-    if (currentZoom <= 1) {
-      posX = 0;
-      posY = 0;
+    if (e.deltaY < 0) {
+        // Zoom in
+        currentZoom *= factor;
+        zoomIn(currentZoom - oldZoom);
+
+        // Adjust position to zoom toward mouse position (only when zooming in)
+        if (currentZoom > 1) {
+            // Calculate the position adjustment based on mouse position and zoom change
+            const posChange = 1 - oldZoom / currentZoom;
+
+            posX += mouseX * posChange;
+            posY += mouseY * posChange;
+        }
+    } else {
+        // Zoom out
+        currentZoom /= factor;
+        zoomOut(oldZoom - currentZoom);
     }
-  }
-  
-  // Adjust position to zoom toward mouse position (only when zooming in)
-  if (e.deltaY < 0 && currentZoom > 1) {
-    // Calculate the position adjustment based on mouse position and zoom change
-    posX = posX + mouseX * (1 - oldZoom/currentZoom);
-    posY = posY + mouseY * (1 - oldZoom/currentZoom);
-  }
-  
-  updateImagePosition();
+
+    updateImagePosition();
 });
 
 // Pan image with mouse drag
