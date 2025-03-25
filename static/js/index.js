@@ -1,4 +1,6 @@
-import './heroVideo';
+import heroVideo from './heroVideo.js';
+
+heroVideo();
 
 // Get all images inside figures
 const images = document.querySelectorAll('figure img'), modal = document.getElementById('imageModal'),
@@ -17,7 +19,7 @@ modal.appendChild(zoomControls);
 
 const zoomInBtn = modal.querySelector('.zoom-in'), zoomOutBtn = modal.querySelector('.zoom-out'), zoomResetBtn = modal.querySelector('.zoom-reset');
 
-let currentZoom = 1, posX = posY = startPosX = startPosY = 0, isPanning = false;
+let currentZoom = 1, posX = 0, posY = 0, startPosX = 0, startPosY = 0, isPanning = false;
 
 // Update image position
 function updateImagePosition() {

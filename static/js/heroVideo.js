@@ -1,4 +1,6 @@
-export default ((heroVideo) => {
+export default () => {
+    const heroVideo = document.getElementById('hero-video');
+
     if (!heroVideo) return;
 
     // Pause the video initially (even though autoplay is set)
@@ -12,4 +14,4 @@ export default ((heroVideo) => {
 
     // Resume playing when mouse leaves
     heroVideo.addEventListener('mouseleave', heroVideo.play);
-})(document.getElementById('hero-video'));
+};
