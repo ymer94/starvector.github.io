@@ -1,3 +1,5 @@
+import './heroVideo';
+
 // Get all images inside figures
 const images = document.querySelectorAll('figure img'), modal = document.getElementById('imageModal'),
     modalImg = document.getElementById('modalImg'), modalCaption = document.getElementById('modalCaption'),
@@ -88,6 +90,12 @@ function panninStop() {
     modalImg.classList.remove('panning');
 }
 
+// Close modal function
+function modalClose() {
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 300);
+}
+
 // Add click event to all images
 images.forEach(img => {
   img.addEventListener('click', function() {
@@ -162,46 +170,10 @@ document.addEventListener('touchmove', (e) => { panningMove(e.touches[0]) });
 document.addEventListener('touchend', panninStop);
 
 // Close modal when clicking the × button
-closeBtn.addEventListener('click', () => {
-  modal.classList.remove('show');
-  setTimeout(() => modal.style.display = 'none', 300);
-});
+closeBtn.addEventListener('click', modalClose);
 
 // Close modal when clicking outside the image
-modal.addEventListener('click', function(event) {
-  if (event.target === modal) {
-    modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 300);
-  }
-});
+modal.addEventListener('click', (e) => { if (e.target === modal) modalClose() });
 
 // Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape' && modal.style.display === 'block') {
-    modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 300);
-  }
-});
-
-// Script to delay video playback 
-document.addEventListener('DOMContentLoaded', function() {
-  const heroVideo = document.getElementById('hero-video');
-  
-  // Pause the video initially (even though autoplay is set)
-  heroVideo.pause();
-  
-  // Start playing after 5 seconds
-  setTimeout(function() {
-    heroVideo.play();
-  }, 5000);
-  
-  // Add hover effect - pause on hover
-  heroVideo.addEventListener('mouseenter', function() {
-    heroVideo.pause();
-  });
-  
-  // Resume playing when mouse leaves
-  heroVideo.addEventListener('mouseleave', function() {
-    heroVideo.play();
-  });
-});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.style.display === 'block') modalClose() });
